@@ -1,5 +1,5 @@
 import React from "react";
-import { gql, useQuery } from "@apollo/client";
+import {gql, useMutation, useQuery} from "@apollo/client";
 
 const ALL_PEOPLE = gql`
   query AllPeople {
@@ -10,11 +10,22 @@ const ALL_PEOPLE = gql`
   }
 `;
 
+const LOGOUT = gql`
+  mutation Logout {
+    logout
+  }
+`
+
 export default function App() {
   const {
     loading,
     data
   } = useQuery(ALL_PEOPLE);
+  const [logoutMutation, logoutResult] = useMutation(LOGOUT)
+  const logout = () => logoutMutation({ awaitRefetchQueries: true, refetchQueries: [ { query: ALL_PEOPLE }]}).catch((e) => {
+    // Errors that occur in refetchQueries cannot be caught.
+    console.log('This line never gets called.')
+  })
 
   return (
     <main>
@@ -32,6 +43,8 @@ export default function App() {
           ))}
         </ul>
       )}
+
+      <button onClick={logout}>Logout</button>
     </main>
   );
 }
